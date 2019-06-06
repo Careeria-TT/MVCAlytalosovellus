@@ -1,7 +1,6 @@
 ﻿
 @{
     ViewBag.Title = "Lämpötilat";
-
 }
 
 @section head{
@@ -21,8 +20,7 @@
                         $("#lämpöModal_TaloIdlist").append('<option value="' + talot[index].TaloId + '">' + talot[index].TaloNimi + ' (id:' + " " + talot[index].TaloId + ')</option>')
                     }
                 });
-
-            } //end function
+            }
 
             function listaaLämpötiedot() {
 
@@ -61,8 +59,6 @@
                         $.getJSON("/TaloLampo/GetSingleGroup/" + lampoId, null, function (json2) {
                             var lampo = JSON.parse(json2);
 
-                            //alert(json2);
-
                             //tietojen lataus modaali-ikkunaan
                             $('#lämpöModal_LämpöId').val(lampo.LampoId);
                             $('#lämpöModal_TaloIdlist').val(lampo.TaloId);
@@ -74,9 +70,8 @@
                             $('#lämpöModalTitle').text('Muokkaa lämpötilaa');
                             $('#lämpöModalDialog').modal('show');
 
-                        }); //end getJSON(asiakas/getsinglegroup)
-
-                    });  //end fa-edit.click
+                        });
+                    });
 
                     //lämpötilan poisto
                     $(".fa-trash").click(function () {
@@ -98,11 +93,9 @@
                     });
                 });
             }
+
             //sivun alustus
-            $(function () {
-                $('#listaaLämpötiedot').on('click', function () {
-                    listaaLämpötiedot();
-                });
+            listaaLämpötiedot();
 
                 //lämpötilan lisäys
                 $('#LisääLämpötila').click(function () {
@@ -135,8 +128,7 @@
 
                     /*Lähetetään tiedot kontrollerille,
                      * annetaan käyttäjälle viesti päivityksen onnistumisesta,
-                     * piilotetaan modaali-ikkuna ja
-                     * päivitetään lämpötilalistaus*/
+                     * piilotetaan modaali-ikkuna ja päivitetään lämpötilalistaus*/
                     $.post("/TaloLampo/Update/", details, function (status) {
                         if (status == true) {
                             $('#lämpöModalDialog').modal('hide');
@@ -148,21 +140,18 @@
                     });
                 });
             });
-        });
     </script>
 }
 
 <h2>Lämpötilat</h2>
 
 <div>
-    <a class="btn btn-secondary" href="#" role="button" id="listaaLämpötiedot">Listaa lämpötiedot</a>
     <a class="btn btn-secondary" href="#" role="button" id="LisääLämpötila">Lisää uusi lämpötila</a>
 </div>
 
 <p>&nbsp;</p>
 
-<!-- Taulukko tietoja varten -->
-
+<!--Taulukko tietoja varten-->
 
 <table class="table table-striped" id="Listaustaulukko">
     <thead class="thead-light">
@@ -171,8 +160,8 @@
             <th scope="col">Lämpö Id</th>
             <th scope="col">Talo</th>
             <th scope="col">Huone</th>
-            <th scope="col">Tavoite lämpötila</th>
-            <th scope="col">Nykyinen lämpötila</th>
+            <th scope="col">Tavoite lämpötila (°C)</th>
+            <th scope="col">Nykyinen lämpötila (°C)</th>
             <th scope="col">Muokkaa</th>
             <th scope="col">Poista</th>
         </tr>
@@ -180,10 +169,9 @@
     <tbody></tbody>
 </table>
 
+<!--Modaali-ikkuna-->
 
-<!-- Modaali-ikkuna-->
-
-<div class="modal" tabindex="-1" role="dialog" id="lämpöModalDialog">
+<div class="modal fade" tabindex="-1" role="dialog" id="lämpöModalDialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">

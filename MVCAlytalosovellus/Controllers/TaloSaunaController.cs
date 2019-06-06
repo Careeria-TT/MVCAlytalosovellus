@@ -59,7 +59,7 @@ namespace MVCAlytalosovellus.Controllers
             //Luodaan uusi entiteettiolio 
             ProjektitEntities entities = new ProjektitEntities();
 
-            //Muutetaan modaali-ikkunasta tullut string-tyyppinen SaunaId int-tyyppiseksi
+            //Muutetaan modaali-ikkunasta tullut string-tyyppinen SaunaId integeriksi
             int sauID = int.Parse(id);
 
             //Haetaan TaloSauna -taulusta kaikki data
@@ -87,7 +87,7 @@ namespace MVCAlytalosovellus.Controllers
 
             bool OK = false;    //tallennuksen onnistuminen
 
-            //tietokantaan tallennetaan uusia tietoja vain, mikäli saunan nimi -kenttä ei ole tyhjä
+            //tietokantaan tallennetaan uusia tietoja vain, mikäli SaunaNimi -kenttä ei ole tyhjä
             if (!string.IsNullOrWhiteSpace(saunat.SaunaNimi))
             {
                 //luodaan uusi entiteettiolio
@@ -114,8 +114,7 @@ namespace MVCAlytalosovellus.Controllers
                 }
                 else
                 {
-                    //muokataan olemassa olevia tietoja
-                    //haetaan tiedot tietokannasta
+                    //muokataan olemassa olevia tietoja ja haetaan tiedot tietokannasta
 
                     TaloSauna dbItem = (from sau in entities.TaloSauna
                                         where sau.SaunaId == saunaid

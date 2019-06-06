@@ -1,7 +1,6 @@
 ﻿
 @{
     ViewBag.Title = "Valot";
-
 }
 
 @section head{
@@ -21,8 +20,7 @@
                         $("#valoModal_TaloIdlist").append('<option value="' + talot[index].TaloId + '">' + talot[index].TaloNimi + ' (id:' + " " + talot[index].TaloId + ')</option>')
                     }
                 });
-
-            } //end function
+            }
 
             function listaaValotiedot() {
 
@@ -33,7 +31,6 @@
                     //luodaan html-taulukon sisältörunko
                     var html = "";
                     for (var i = 0; i < valot.length; i++) {
-                        //alert("Valon nimi: " + valot[i].ValoNimi);
                         html += "<tr>" +
                             "<th scope ='row'></th>" +
                             "<td>" + valot[i].ValoId + "</td>" +
@@ -63,8 +60,6 @@
                         $.getJSON("/TaloValo/GetSingleGroup/" + valoId, null, function (json2) {
                             var valo = JSON.parse(json2);
 
-                            //alert(json2);
-
                             //tietojen lataus modaali-ikkunaan
                             $('#valoModal_ValoId').val(valo.ValoId);
                             $('#valoModal_TaloIdlist').val(valo.TaloId);
@@ -76,9 +71,8 @@
                             //näytetään modaali-ikkuna
                             $('#valoModalTitle').text('Muokkaa valoa');
                             $('#valoModalDialog').modal('show');
-
-                        }); //end getJSON(TaloValo/getsinglegroup)
-                    });  //end fa-edit.click
+                        });
+                    });  
 
                     //valon poisto
                     $(".fa-trash").click(function () {
@@ -100,11 +94,9 @@
                     });
                 });
             }
+
             //sivun alustus
-            $(function () {
-                $('#listaaValotiedot').on('click', function () {
-                    listaaValotiedot();
-                });
+            listaaValotiedot();
 
                 //valon lisäys
                 $('#LisääValo').click(function () {
@@ -137,8 +129,7 @@
 
                     /*Lähetetään tiedot kontrollerille,
                      * annetaan käyttäjälle viesti päivityksen onnistumisesta,
-                     * piilotetaan modaali-ikkuna ja
-                     * päivitetään valolistaus*/
+                     * piilotetaan modaali-ikkuna ja päivitetään valolistaus*/
                     $.post("/TaloValo/Update/", details, function (status) {
                         if (status == true) {
                             $('#valoModalDialog').modal('hide');
@@ -150,15 +141,13 @@
                     });
                 });
             });
-        });
     </script>
 }
 
 <h2>Valot</h2>
 
 <div>
-    <a class="btn btn-secondary" href="#" role="button" id="listaaValotiedot">Listaa valotiedot</a>
-    <a class="btn btn-secondary" href="#" role="button" id="LisääValo">Lisää uusi valo</a>
+    <a class="btn btn-dark" href="#" role="button" id="LisääValo">Lisää uusi valo</a>
 </div>
 
 <p>&nbsp;</p>
@@ -173,7 +162,7 @@
             <th scope="col">Talo</th>
             <th scope="col">Huone</th>
             <th scope="col">Valon nimi</th>
-            <th scope="col">Valon määrä</th>
+            <th scope="col">Valon määrä (%)</th>
             <th scope="col">Päällä/Pois</th>
             <th scope="col">Muokkaa</th>
             <th scope="col">Poista</th>
@@ -182,10 +171,9 @@
     <tbody></tbody>
 </table>
 
-
 <!--Modaali-ikkuna-->
 
-<div class="modal" tabindex="-1" role="dialog" id="valoModalDialog">
+<div class="modal fade" tabindex="-1" role="dialog" id="valoModalDialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">

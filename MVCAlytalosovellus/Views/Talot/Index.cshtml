@@ -1,7 +1,6 @@
 ﻿
 @{
     ViewBag.Title = "Talot";
-
 }
 
 @section head{
@@ -20,7 +19,6 @@
                     //luodaan html-taulukon sisältörunko
                     var html = "";
                     for (var i = 0; i < talot.length; i++) {
-                        //alert("Talon nimi: " + talot[i].TaloNimi);
                         html += "<tr>" +
                             "<th scope ='row'></th>" +
                             "<td>" + talot[i].TaloId + "</td>" +
@@ -42,8 +40,6 @@
                         //haetaan talon tiedot kontrollerilta Id:n perusteella
                         $.getJSON("/Talot/GetSingleGroup/" + taloId, null, function (json2) {
                             var talot = JSON.parse(json2);
-
-                            //alert(json2);
 
                             //tietojen lataus modaali-ikkunaan
                             $('#taloModal_TaloId').val(talot.TaloId);
@@ -77,11 +73,9 @@
                     });
                 });
             }
+
             //sivun alustus
-            $(function () {
-                $('#listaaTalotiedot').on('click', function () {
                     listaaTalotiedot();
-                });
 
                 //Talon lisäys
                 $('#lisääTalo').click(function () {
@@ -105,8 +99,7 @@
 
                     /*Lähetetään tiedot kontrollerille,
                      * annetaan käyttäjälle viesti päivityksen onnistumisesta,
-                     * piilotetaan modaali-ikkuna ja
-                     * päivitetään talolistaus*/
+                     * piilotetaan modaali-ikkuna ja päivitetään talolistaus*/          
                     $.post("/Talot/Update/", details, function (status) {
                         if (status == true) {
                             $('#taloModalDialog').modal('hide');
@@ -118,20 +111,18 @@
                     });
                 });
             });
-        });
     </script>
 }
 
 <h2>Talot</h2>
 
 <div>
-    <a class="btn btn-secondary" href="#" role="button" id="listaaTalotiedot">Listaa talotiedot</a>
-    <a class="btn btn-secondary" href="#" role="button" id="lisääTalo">Lisää uusi talo</a>
+    <a class="btn btn-dark" href="#" role="button" id="lisääTalo">Lisää uusi talo</a>
 </div>
 
 <p>&nbsp;</p>
 
-<!-- Taulukko tietoja varten -->
+<!--Taulukko tietoja varten-->
 
 <table class="table table-striped" id="Listaustaulukko">
     <thead class="thead-light">
@@ -147,9 +138,9 @@
 </table>
 
 
-<!-- Modaali-ikkuna-->
+<!--Modaali-ikkuna-->
 
-<div class="modal" tabindex="-1" role="dialog" id="taloModalDialog">
+<div class="modal fade" tabindex="-1" role="dialog" id="taloModalDialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">

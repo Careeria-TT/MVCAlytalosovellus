@@ -59,7 +59,7 @@ namespace MVCAlytalosovellus.Controllers
             //Luodaan uusi entiteettiolio 
             ProjektitEntities entities = new ProjektitEntities();
 
-            //Muutetaan modaali-ikkunasta tullut string-tyyppinen LampoId int-tyyppiseksi
+            //Muutetaan modaali-ikkunasta tullut string-tyyppinen LampoId integeriksi
             int lamID = int.Parse(id);
 
             //Haetaan TaloLampo -taulusta kaikki data
@@ -87,7 +87,7 @@ namespace MVCAlytalosovellus.Controllers
 
             bool OK = false;    //tallennuksen onnistuminen
 
-            //tietokantaan tallennetaan uusia tietoja vain, mikäli huoneen nimi -kenttä ei ole tyhjä
+            //tietokantaan tallennetaan uusia tietoja vain, mikäli Huone -kenttä ei ole tyhjä
             if (!string.IsNullOrWhiteSpace(lampo.Huone))
             {
                 //luodaan uusi entiteettiolio
@@ -114,8 +114,7 @@ namespace MVCAlytalosovellus.Controllers
                 }
                 else
                 {
-                    //muokataan olemassa olevia tietoja
-                    //haetaan tiedot tietokannasta
+                    //muokataan olemassa olevia tietoja ja haetaan tiedot tietokannasta
 
                     TaloLampo dbItem = (from lam in entities.TaloLampo
                                         where lam.LampoId == lampoid

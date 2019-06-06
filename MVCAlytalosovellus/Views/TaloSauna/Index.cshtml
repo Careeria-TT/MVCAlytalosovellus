@@ -1,7 +1,6 @@
 ﻿
 @{
     ViewBag.Title = "Saunat";
-
 }
 
 @section head{
@@ -21,8 +20,7 @@
                         $("#saunaModal_TaloIdlist").append('<option value="' + talot[index].TaloId + '">' + talot[index].TaloNimi + ' (id:' + " " + talot[index].TaloId + ')</option>')
                     }
                 });
-
-            } //end function
+            }
 
             function listaaSaunatiedot() {
 
@@ -62,8 +60,6 @@
                         $.getJSON("/TaloSauna/GetSingleGroup/" + saunaId, null, function (json2) {
                             var sauna = JSON.parse(json2);
 
-                            //alert(json2);
-
                             //tietojen lataus modaali-ikkunaan
                             $('#saunaModal_SaunaId').val(sauna.SaunaId);
                             $('#saunaModal_TaloIdlist').val(sauna.TaloId);
@@ -99,11 +95,9 @@
                     });
                 });
             }
+
             //sivun alustus
-            $(function () {
-                $('#listaaSaunatiedot').on('click', function () {
-                    listaaSaunatiedot();
-                });
+            listaaSaunatiedot();
 
                 //saunan lisäys
                 $('#LisääSauna').click(function () {
@@ -149,21 +143,18 @@
                     });
                 });
             });
-        });
     </script>
 }
 
 <h2>Saunat</h2>
 
 <div>
-    <a class="btn btn-secondary" href="#" role="button" id="listaaSaunatiedot">Listaa saunatiedot</a>
     <a class="btn btn-secondary" href="#" role="button" id="LisääSauna">Lisää uusi sauna</a>
 </div>
 
 <p>&nbsp;</p>
 
-<!-- Taulukko tietoja varten -->
-
+<!--Taulukko tietoja varten-->
 
 <table class="table table-striped" id="Listaustaulukko">
     <thead class="thead-light">
@@ -172,7 +163,7 @@
             <th scope="col">Sauna Id</th>
             <th scope="col">Talo</th>
             <th scope="col">Saunan Nimi</th>
-            <th scope="col">Nykyinen Lämpötila</th>
+            <th scope="col">Nykyinen Lämpötila (°C)</th>
             <th scope="col">Päällä/Pois</th>
             <th scope="col">Muokkaa</th>
             <th scope="col">Poista</th>
@@ -181,10 +172,9 @@
     <tbody></tbody>
 </table>
 
+<!--Modaali-ikkuna-->
 
-<!-- Modaali-ikkuna-->
-
-<div class="modal" tabindex="-1" role="dialog" id="saunaModalDialog">
+<div class="modal fade" tabindex="-1" role="dialog" id="saunaModalDialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">

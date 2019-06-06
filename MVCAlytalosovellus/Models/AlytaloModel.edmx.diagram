@@ -5,10 +5,10 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="3d608fd6b00a4a6dbcc52ef9a8df7eaa" Name="Diagram1" ZoomLevel="80">
-        <EntityTypeShape EntityType="ProjektitModel.TaloLampo" Width="1.5" PointX="4.875" PointY="6.25" />
-        <EntityTypeShape EntityType="ProjektitModel.TaloSauna" Width="1.5" PointX="2.625" PointY="6.25" />
-        <EntityTypeShape EntityType="ProjektitModel.Talot" Width="1.5" PointX="4.875" PointY="3.75" />
-        <EntityTypeShape EntityType="ProjektitModel.TaloValo" Width="1.5" PointX="7.375" PointY="6.125" />
+        <EntityTypeShape EntityType="ProjektitModel.TaloLampo" Width="1.5" PointX="4.5" PointY="3" />
+        <EntityTypeShape EntityType="ProjektitModel.TaloSauna" Width="1.5" PointX="2.25" PointY="3" />
+        <EntityTypeShape EntityType="ProjektitModel.Talot" Width="1.5" PointX="4.5" PointY="0.5" />
+        <EntityTypeShape EntityType="ProjektitModel.TaloValo" Width="1.5" PointX="7" PointY="2.875" />
         <AssociationConnector Association="ProjektitModel.FK_TaloLampo_Talot" />
         <AssociationConnector Association="ProjektitModel.FK_TaloSauna_Talot" />
         <AssociationConnector Association="ProjektitModel.FK_TaloValo_Talot" />

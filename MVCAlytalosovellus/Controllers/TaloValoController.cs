@@ -60,7 +60,7 @@ namespace MVCAlytalosovellus.Controllers
             //Luodaan uusi entiteettiolio 
             ProjektitEntities entities = new ProjektitEntities();
 
-            //Muutetaan modaali-ikkunasta tullut string-tyyppinen ValoId int-tyyppiseksi
+            //Muutetaan modaali-ikkunasta tullut string-tyyppinen ValoId integeriksi
             int valID = int.Parse(id);
 
             //Haetaan TaloValo -taulusta kaikki data
@@ -88,7 +88,7 @@ namespace MVCAlytalosovellus.Controllers
 
             bool OK = false;    //tallennuksen onnistuminen
 
-            //tietokantaan tallennetaan uusia tietoja vain, mikäli valon nimi -kenttä ei ole tyhjä
+            //tietokantaan tallennetaan uusia tietoja vain, mikäli Huone ja ValoNimi -kentät ei ole tyhjä
             if (!string.IsNullOrWhiteSpace(valot.Huone) &&
                     !string.IsNullOrWhiteSpace(valot.ValoNimi))
             {
@@ -117,8 +117,7 @@ namespace MVCAlytalosovellus.Controllers
                 }
                 else
                 {
-                    //muokataan olemassa olevia tietoja
-                    //haetaan tiedot tietokannasta
+                    //muokataan olemassa olevia tietoja ja haetaan tiedot tietokannasta
 
                     TaloValo dbItem = (from val in entities.TaloValo
                                         where val.ValoId == valoid
@@ -141,7 +140,6 @@ namespace MVCAlytalosovellus.Controllers
                 //suljetaan tietokantayhteys
                 entities.Dispose();
             }
-
             //palautetaan tallennuskuittaus selaimelle (muuttuja OK)
             return Json(OK, JsonRequestBehavior.AllowGet);
         }

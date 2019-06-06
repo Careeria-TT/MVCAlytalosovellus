@@ -53,7 +53,7 @@ namespace MVCAlytalosovellus.Controllers
             //Luodaan uusi entiteettiolio 
             ProjektitEntities entities = new ProjektitEntities();
 
-            //Muutetaan modaali-ikkunasta tullut string-tyyppinen TaloId int-tyyppiseksi
+            //Muutetaan modaali-ikkunasta tullut string-tyyppinen TaloId integeriksi
             int talID = int.Parse(id);
 
             //Haetaan Talot -taulusta kaikki data
@@ -81,7 +81,7 @@ namespace MVCAlytalosovellus.Controllers
 
             bool OK = false;    //tallennuksen onnistuminen
 
-            //tietokantaan tallennetaan uusia tietoja vain, mikäli talon nimi -kenttä ei ole tyhjä
+            //tietokantaan tallennetaan uusia tietoja vain, mikäli TaloNimi -kenttä ei ole tyhjä
             if (!string.IsNullOrWhiteSpace(talot.TaloNimi))
             {
                 //luodaan uusi entiteettiolio
@@ -105,8 +105,7 @@ namespace MVCAlytalosovellus.Controllers
                 }
                 else
                 {
-                    //muokataan olemassa olevia tietoja
-                    //haetaan tiedot tietokannasta
+                    //muokataan olemassa olevia tietoja ja haetaan tiedot tietokannasta
 
                     Talot dbItem = (from tal in entities.Talot
                                         where tal.TaloId == taloid
