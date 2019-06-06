@@ -1,0 +1,238 @@
+﻿
+@{
+    ViewBag.Title = "Valot";
+
+}
+
+@section head{
+}
+
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            function paivita_talot_lista() {
+                $.getJSON("/talot/getlist", null, function (json) {
+                    var talot = JSON.parse(json)
+                    $("#valoModal_TaloIdlist").empty(); //Tyhjennä talot lista
+
+                    for (var index = 0; index < talot.length; index++) {
+                        //Lisää talot listaan
+                        $("#valoModal_TaloIdlist").append('<option value="' + talot[index].TaloId + '">' + talot[index].TaloNimi + ' (id:' + " " + talot[index].TaloId + ')</option>')
+                    }
+                });
+
+            } //end function
+
+            function listaaValotiedot() {
+
+                //tuo valojen tiedot kontrollerilta
+                $.getJSON("/TaloValo/GetList", null, function (json) {
+                    var valot = JSON.parse(json)
+
+                    //luodaan html-taulukon sisältörunko
+                    var html = "";
+                    for (var i = 0; i < valot.length; i++) {
+                        //alert("Valon nimi: " + valot[i].ValoNimi);
+                        html += "<tr>" +
+                            "<th scope ='row'></th>" +
+                            "<td>" + valot[i].ValoId + "</td>" +
+                            "<td>" + valot[i].TaloNimi + "</td>" +
+                            "<td>" + valot[i].Huone + "</td>" +
+                            "<td>" + valot[i].ValoNimi + "</td>" +
+                            "<td>" + valot[i].ValoMaara + "</td>" +
+                            "<td>" + valot[i].ValoTila + "</td>" +
+                            "<td><a href='#'><span class='fa fa-edit'></span></a></td>" +
+                            "<td><a href='#'><span class='fa fa-trash'></span></a></td>" +
+                            "</tr>\r\n"
+                    }
+
+                    //täytetään taulukko
+                    $("#Listaustaulukko tbody").html(html);
+
+                    //tietojen muokkaus
+                    $(".fa-edit").click(function () {
+
+                        //Päivitä talot lista
+                        paivita_talot_lista();
+
+                        //etsitään valon tiedot klikatulta riviltä
+                        var valoId = $(this).parent().parent().prev().prev().prev().prev().prev().prev().text();
+
+                        //haetaan valon tiedot kontrollerilta id:n perusteella
+                        $.getJSON("/TaloValo/GetSingleGroup/" + valoId, null, function (json2) {
+                            var valo = JSON.parse(json2);
+
+                            //alert(json2);
+
+                            //tietojen lataus modaali-ikkunaan
+                            $('#valoModal_ValoId').val(valo.ValoId);
+                            $('#valoModal_TaloIdlist').val(valo.TaloId);
+                            $('#valoModal_Huone').val(valo.Huone);
+                            $('#valoModal_ValoNimi').val(valo.ValoNimi);
+                            $('#valoModal_ValoMaara').val(valo.ValoMaara);
+                            $('#valoModall_Tila').val(valo.ValoTila.toString());
+
+                            //näytetään modaali-ikkuna
+                            $('#valoModalTitle').text('Muokkaa valoa');
+                            $('#valoModalDialog').modal('show');
+
+                        }); //end getJSON(TaloValo/getsinglegroup)
+                    });  //end fa-edit.click
+
+                    //valon poisto
+                    $(".fa-trash").click(function () {
+                        //etsitään valon tiedot klikatulta riviltä
+                        var valoId = $(this).parent().parent().prev().prev().prev().prev().prev().prev().prev().text();
+                        var ok = confirm("Haluatko varmasti poistaa valon " + valoId + "?");
+
+                        if (ok == true) {
+                            $.getJSON("/TaloValo/Delete/" + valoId, null, function (status) {
+                                if (status == true) {
+                                    alert('Valo on poistettu!');
+                                    listaaValotiedot();
+                                }
+                                else {
+                                    alert('Poistaminen epäonnistui, tarkista tiedot!');
+                                }
+                            });
+                        }
+                    });
+                });
+            }
+            //sivun alustus
+            $(function () {
+                $('#listaaValotiedot').on('click', function () {
+                    listaaValotiedot();
+                });
+
+                //valon lisäys
+                $('#LisääValo').click(function () {
+
+                    //päivitä talot lista
+                    paivita_talot_lista();
+
+                    //tyhjennetään ikkunan tiedot
+                    $('#valoModal_ValoId').val('(Uusi Valo)');
+                    $('#valoModal_Huone').val('');
+                    $('#valoModal_ValoNimi').val('');
+                    $('#valoModal_ValoMaara').val('');
+
+                    //näytetään tyhjä modaali-ikkuna
+                    $('#valoModalTitle').text('Lisää uusi valo');
+                    $('#valoModalDialog').modal('show');
+                });
+
+                //Painetaan Tallenna => luetaan käyttäjän antamat tiedot modaali-ikkunasta
+                $("#valoModalSaveButton").click(function () {
+
+                    var details = {
+                        ValoId: $("#valoModal_ValoId").val(),
+                        TaloId: $("#valoModal_TaloIdlist").val(),
+                        Huone: $("#valoModal_Huone").val(),
+                        ValoNimi: $("#valoModal_ValoNimi").val(),
+                        ValoMaara: $("#valoModal_ValoMaara").val(),
+                        ValoTila: $("#valoModal_Tila").val()
+                    };
+
+                    /*Lähetetään tiedot kontrollerille,
+                     * annetaan käyttäjälle viesti päivityksen onnistumisesta,
+                     * piilotetaan modaali-ikkuna ja
+                     * päivitetään valolistaus*/
+                    $.post("/TaloValo/Update/", details, function (status) {
+                        if (status == true) {
+                            $('#valoModalDialog').modal('hide');
+                            listaaValotiedot();
+                        }
+                        else {
+                            alert('Tallennus epäonnistui, tarkista tiedot!');
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+}
+
+<h2>Valot</h2>
+
+<div>
+    <a class="btn btn-secondary" href="#" role="button" id="listaaValotiedot">Listaa valotiedot</a>
+    <a class="btn btn-secondary" href="#" role="button" id="LisääValo">Lisää uusi valo</a>
+</div>
+
+<p>&nbsp;</p>
+
+<!--Taulukko tietoja varten-->
+
+<table class="table table-striped" id="Listaustaulukko">
+    <thead class="thead-light">
+        <tr>
+            <th scope="col"></th>
+            <th scope="col">Valo Id</th>
+            <th scope="col">Talo</th>
+            <th scope="col">Huone</th>
+            <th scope="col">Valon nimi</th>
+            <th scope="col">Valon määrä</th>
+            <th scope="col">Päällä/Pois</th>
+            <th scope="col">Muokkaa</th>
+            <th scope="col">Poista</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+
+<!--Modaali-ikkuna-->
+
+<div class="modal" tabindex="-1" role="dialog" id="valoModalDialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><span id="valoModalTitle">Muokkaa valoa</span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-3">ValoId</div>
+                    <div class="col-md-6"><input class="form-control" id="valoModal_ValoId" type="text" readonly></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">Talo</div>
+                    <div class="col-md-6">
+                        <select class="form-control" id="valoModal_TaloIdlist">
+                            <option>Ladataan...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">Huone</div>
+                    <div class="col-md-6"><input class="form-control" id="valoModal_Huone" type="text"></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">Valon nimi</div>
+                    <div class="col-md-6"><input class="form-control" id="valoModal_ValoNimi" type="text"></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">Valon määrä</div>
+                    <div class="col-md-6"><input class="form-control" id="valoModal_ValoMaara" type="text"></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">Päällä/Pois</div>
+                    <div class="col-md-6">
+                        <select class="form-control" id="valoModal_Tila">
+                            <option value="true">Päällä</option>
+                            <option value="false">Pois</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="valoModalSaveButton">Tallenna</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Peruuta</button>
+            </div>
+        </div>
+    </div>
+</div>

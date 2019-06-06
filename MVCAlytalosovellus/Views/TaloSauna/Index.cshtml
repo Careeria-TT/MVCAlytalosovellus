@@ -1,0 +1,233 @@
+﻿
+@{
+    ViewBag.Title = "Saunat";
+
+}
+
+@section head{
+}
+
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            function paivita_talot_lista() {
+                $.getJSON("/talot/getlist", null, function (json) {
+                    var talot = JSON.parse(json)
+                    $("#saunaModal_TaloIdlist").empty(); //Tyhjennä talot lista
+
+                    for (var index = 0; index < talot.length; index++) {
+                        //Lisää talot listaan
+                        $("#saunaModal_TaloIdlist").append('<option value="' + talot[index].TaloId + '">' + talot[index].TaloNimi + ' (id:' + " " + talot[index].TaloId + ')</option>')
+                    }
+                });
+
+            } //end function
+
+            function listaaSaunatiedot() {
+
+                //tuo saunojen tiedot kontrollerilta
+                $.getJSON("/TaloSauna/GetList", null, function (json) {
+                    var saunat = JSON.parse(json)
+
+                    //luodaan html-taulukon sisältörunko
+                    var html = "";
+                    for (var i = 0; i < saunat.length; i++) {
+                        //alert("Saunan nimi: " + saunat[i].SaunaNimi);
+                        html += "<tr>" +
+                            "<th scope ='row'></th>" +
+                            "<td>" + saunat[i].SaunaId + "</td>" +
+                            "<td>" + saunat[i].TaloNimi + "</td>" +
+                            "<td>" + saunat[i].SaunaNimi + "</td>" +
+                            "<td>" + saunat[i].SaunaNykyLampotila + "</td>" +
+                            "<td>" + saunat[i].SaunaTila + "</td>" +
+                            "<td><a href='#'><span class='fa fa-edit'></span></a></td>" +
+                            "<td><a href='#'><span class='fa fa-trash'></span></a></td>" +
+                            "</tr>\r\n"
+                    }
+
+                    //täytetään taulukko
+                    $("#Listaustaulukko tbody").html(html);
+
+                    //tietojen muokkaus
+                    $(".fa-edit").click(function () {
+
+                        //Päivitä talot lista
+                        paivita_talot_lista();
+
+                        //etsitään saunan tiedot klikatulta riviltä
+                        var saunaId = $(this).parent().parent().prev().prev().prev().prev().prev().text();
+
+                        //haetaan saunan tiedot kontrollerilta id:n perusteella
+                        $.getJSON("/TaloSauna/GetSingleGroup/" + saunaId, null, function (json2) {
+                            var sauna = JSON.parse(json2);
+
+                            //alert(json2);
+
+                            //tietojen lataus modaali-ikkunaan
+                            $('#saunaModal_SaunaId').val(sauna.SaunaId);
+                            $('#saunaModal_TaloIdlist').val(sauna.TaloId);
+                            $('#saunaModal_SaunaNimi').val(sauna.SaunaNimi);
+                            $('#saunaModal_SaunaNykyLampotila').val(sauna.SaunaNykyLampotila);
+                            $('#saunaModal_Tila').val(sauna.SaunaTila.toString());//Huom! koska vastaus on boolean muutetaan se stringiksi
+
+                            //näytetään modaali-ikkuna
+                            $('#saunaModalTitle').text('Muokkaa saunaa');
+                            $('#saunaModalDialog').modal('show');
+
+                        }); //end getJSON(asiakas/getsinglegroup)
+
+                    });  //end fa-edit.click
+
+                    //saunan poisto
+                    $(".fa-trash").click(function () {
+                        //etsitään saunan tiedot klikatulta riviltä
+                        var saunaId = $(this).parent().parent().prev().prev().prev().prev().prev().prev().text();
+                        var ok = confirm("Haluatko varmasti poistaa saunan " + saunaId + "?");
+
+                        if (ok == true) {
+                            $.getJSON("/TaloSauna/Delete/" + saunaId, null, function (status) {
+                                if (status == true) {
+                                    alert('Sauna on poistettu!');
+                                    listaaSaunatiedot();
+                                }
+                                else {
+                                    alert('Poistaminen ei onnistunut, tarkista tiedot!');
+                                }
+                            });
+                        }
+                    });
+                });
+            }
+            //sivun alustus
+            $(function () {
+                $('#listaaSaunatiedot').on('click', function () {
+                    listaaSaunatiedot();
+                });
+
+                //saunan lisäys
+                $('#LisääSauna').click(function () {
+
+                    //päivitä talot lista
+                    paivita_talot_lista();
+
+                    //tyhjennetään ikkunan tiedot
+                    $('#saunaModal_SaunaId').val('(Uusi Sauna)');
+                    $('#saunaModal_SaunaNimi').val('');
+                    $('#saunaModal_SaunaNykyLampotila').val('');
+    
+                    //näytetään tyhjä modaali-ikkuna
+                    $('#saunaModalTitle').text('Lisää uusi sauna');
+                    $('#saunaModalDialog').modal('show');
+                });
+
+                //Painetaan Tallenna => luetaan käyttäjän antamat tiedot modaali-ikkunasta
+                $("#saunaModalSaveButton").click(function () {
+
+                    var details = {
+                        SaunaId: $("#saunaModal_SaunaId").val(),
+                        TaloId: $("#saunaModal_TaloIdlist").val(),
+                        SaunaNimi: $("#saunaModal_SaunaNimi").val(),
+                        SaunaNykyLampotila: $("#saunaModal_SaunaNykyLampotila").val(),
+                        SaunaTila: $("#saunaModal_Tila").val()
+
+                        //KategoriaId: $("#customerModal_KategoriaIdlist").val(),//$("#customerModal_KategoriaId").val(),
+                    };
+
+                    /*Lähetetään tiedot kontrollerille,
+                     * annetaan käyttäjälle viesti päivityksen onnistumisesta,
+                     * piilotetaan modaali-ikkuna ja
+                     * päivitetään saunalistaus*/
+                    $.post("/TaloSauna/Update/", details, function (status) {
+                        if (status == true) {
+                            $('#saunaModalDialog').modal('hide');
+                            listaaSaunatiedot();
+                        }
+                        else {
+                            alert('Tallennus epäonnistui, tarkista tiedot!');
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+}
+
+<h2>Saunat</h2>
+
+<div>
+    <a class="btn btn-secondary" href="#" role="button" id="listaaSaunatiedot">Listaa saunatiedot</a>
+    <a class="btn btn-secondary" href="#" role="button" id="LisääSauna">Lisää uusi sauna</a>
+</div>
+
+<p>&nbsp;</p>
+
+<!-- Taulukko tietoja varten -->
+
+
+<table class="table table-striped" id="Listaustaulukko">
+    <thead class="thead-light">
+        <tr>
+            <th scope="col"></th>
+            <th scope="col">Sauna Id</th>
+            <th scope="col">Talo</th>
+            <th scope="col">Saunan Nimi</th>
+            <th scope="col">Nykyinen Lämpötila</th>
+            <th scope="col">Päällä/Pois</th>
+            <th scope="col">Muokkaa</th>
+            <th scope="col">Poista</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+
+<!-- Modaali-ikkuna-->
+
+<div class="modal" tabindex="-1" role="dialog" id="saunaModalDialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><span id="saunaModalTitle">Muokkaa saunaa</span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-3">SaunaId</div>
+                    <div class="col-md-6"><input class="form-control" id="saunaModal_SaunaId" type="text" readonly></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">Talo</div>
+                    <div class="col-md-6">
+                        <select class="form-control" id="saunaModal_TaloIdlist">
+                            <option>Ladataan...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">Saunan Nimi</div>
+                    <div class="col-md-6"><input class="form-control" id="saunaModal_SaunaNimi" type="text"></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">Nykyinen lämpotila</div>
+                    <div class="col-md-6"><input class="form-control" id="saunaModal_SaunaNykyLampotila" type="text"></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">Päällä/Pois</div>
+                    <div class="col-md-6">
+                        <select class="form-control" id="saunaModal_Tila">
+                            <option value="true">Päällä</option>
+                            <option value="false">Pois</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="saunaModalSaveButton">Tallenna</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Peruuta</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Timpan ASP.NET Applikaatio</title>
+    @Styles.Render("~/Content/css")
+    <link href="~/Content/Site.css" rel="stylesheet" />
+    @Scripts.Render("~/bundles/modernizr")
+    @RenderSection("head", required: false)
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <div class="navbar-nav fix">
+                <a class="nav-item nav-link" href="~/Home/Index" style="color:white;">Etusivu<span class="sr-only">(current)</span></a>
+                <a class="nav-item nav-link" href="~/Talot/Index" style="color:white;">Talot</a>
+                <a class="nav-item nav-link" href="~/TaloValo/Index" style="color:white;">Valot</a>
+                <a class="nav-item nav-link" href="~/TaloLampo/Index" style="color:white;">Lämpötilat</a>
+                <a class="nav-item nav-link" href="~/TaloSauna/Index" style="color:white;">Saunat</a>
+            </div>
+        </div>
+    </nav>
+    &nbsp;
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p align="center">&copy; @DateTime.Now.Year - Timpan Älytalo</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

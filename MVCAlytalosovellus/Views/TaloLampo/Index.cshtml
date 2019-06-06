@@ -1,0 +1,227 @@
+﻿
+@{
+    ViewBag.Title = "Lämpötilat";
+
+}
+
+@section head{
+}
+
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            function paivita_talot_lista() {
+                $.getJSON("/talot/getlist", null, function (json) {
+                    var talot = JSON.parse(json)
+                    $("#lämpöModal_TaloIdlist").empty(); //Tyhjennä talot lista
+
+                    for (var index = 0; index < talot.length; index++) {
+                        //Lisää talot listaan
+                        $("#lämpöModal_TaloIdlist").append('<option value="' + talot[index].TaloId + '">' + talot[index].TaloNimi + ' (id:' + " " + talot[index].TaloId + ')</option>')
+                    }
+                });
+
+            } //end function
+
+            function listaaLämpötiedot() {
+
+                //tuo lämpötilojen tiedot kontrollerilta
+                $.getJSON("/TaloLampo/GetList", null, function (json) {
+                    var lampo = JSON.parse(json)
+
+                    //luodaan html-taulukon sisältörunko
+                    var html = "";
+                    for (var i = 0; i < lampo.length; i++) {
+                        html += "<tr>" +
+                            "<th scope ='row'></th>" +
+                            "<td>" + lampo[i].LampoId + "</td>" +
+                            "<td>" + lampo[i].TaloNimi + "</td>" +
+                            "<td>" + lampo[i].Huone + "</td>" +
+                            "<td>" + lampo[i].HuoneTavoiteLampotila + "</td>" +
+                            "<td>" + lampo[i].HuoneNykyLampotila + "</td>" +
+                            "<td><a href='#'><span class='fa fa-edit'></span></a></td>" +
+                            "<td><a href='#'><span class='fa fa-trash'></span></a></td>" +
+                            "</tr>\r\n"
+                    }
+
+                    //täytetään taulukko
+                    $("#Listaustaulukko tbody").html(html);
+
+                    //tietojen muokkaus
+                    $(".fa-edit").click(function () {
+
+                        //Päivitä talot lista
+                        paivita_talot_lista();
+
+                        //etsitään lämpötiedot klikatulta riviltä
+                        var lampoId = $(this).parent().parent().prev().prev().prev().prev().prev().text();
+
+                        //haetaan lämpötiedot kontrollerilta id:n perusteella
+                        $.getJSON("/TaloLampo/GetSingleGroup/" + lampoId, null, function (json2) {
+                            var lampo = JSON.parse(json2);
+
+                            //alert(json2);
+
+                            //tietojen lataus modaali-ikkunaan
+                            $('#lämpöModal_LämpöId').val(lampo.LampoId);
+                            $('#lämpöModal_TaloIdlist').val(lampo.TaloId);
+                            $('#lämpöModal_Huone').val(lampo.Huone);
+                            $('#lämpöModal_HuoneTavoiteLämpötila').val(lampo.HuoneTavoiteLampotila);
+                            $('#lämpöModal_HuoneNykyLämpötila').val(lampo.HuoneNykyLampotila);
+
+                            //näytetään modaali-ikkuna
+                            $('#lämpöModalTitle').text('Muokkaa lämpötilaa');
+                            $('#lämpöModalDialog').modal('show');
+
+                        }); //end getJSON(asiakas/getsinglegroup)
+
+                    });  //end fa-edit.click
+
+                    //lämpötilan poisto
+                    $(".fa-trash").click(function () {
+                        //etsitään lämpötilan tiedot klikatulta riviltä
+                        var lampoId = $(this).parent().parent().prev().prev().prev().prev().prev().prev().text();
+                        var ok = confirm("Haluatko varmasti poistaa lämpötilan " + lampoId + "?");
+
+                        if (ok == true) {
+                            $.getJSON("/TaloLampo/Delete/" + lampoId, null, function (status) {
+                                if (status == true) {
+                                    alert('Lämpötila on poistettu!');
+                                    listaaLämpötiedot();
+                                }
+                                else {
+                                    alert('Poistaminen ei onnistunut, tarkista tiedot!');
+                                }
+                            });
+                        }
+                    });
+                });
+            }
+            //sivun alustus
+            $(function () {
+                $('#listaaLämpötiedot').on('click', function () {
+                    listaaLämpötiedot();
+                });
+
+                //lämpötilan lisäys
+                $('#LisääLämpötila').click(function () {
+
+                    //päivitä talot lista
+                    paivita_talot_lista();
+
+                    //tyhjennetään ikkunan tiedot
+                    $('#lämpöModal_LämpöId').val('(Uusi Lämpö)');
+                    $('#lämpöModal_Huone').val('');
+                    $('#lämpöModal_HuoneTavoiteLämpötila').val('');
+                    $('#lämpöModal_HuoneNykyLämpötila').val('');
+
+                    //näytetään tyhjä modaali-ikkuna
+                    $('#lämpöModalTitle').text('Lisää uusi lämpötila');
+                    $('#lämpöModalDialog').modal('show');
+                });
+
+                //Painetaan Tallenna => luetaan käyttäjän antamat tiedot modaali-ikkunasta
+                $("#lämpöModalSaveButton").click(function () {
+
+                    var details = {
+                        LampoId: $("#lämpöModal_LämpöId").val(),
+                        TaloId: $("#lämpöModal_TaloIdlist").val(),
+                        Huone: $("#lämpöModal_Huone").val(),
+                        HuoneTavoiteLampotila: $("#lämpöModal_HuoneTavoiteLämpötila").val(),
+                        HuoneNykyLampotila: $("#lämpöModal_HuoneNykyLämpötila").val()
+
+                    };
+
+                    /*Lähetetään tiedot kontrollerille,
+                     * annetaan käyttäjälle viesti päivityksen onnistumisesta,
+                     * piilotetaan modaali-ikkuna ja
+                     * päivitetään lämpötilalistaus*/
+                    $.post("/TaloLampo/Update/", details, function (status) {
+                        if (status == true) {
+                            $('#lämpöModalDialog').modal('hide');
+                            listaaLämpötiedot();
+                        }
+                        else {
+                            alert('Tallennus epäonnistui, tarkista tiedot!');
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+}
+
+<h2>Lämpötilat</h2>
+
+<div>
+    <a class="btn btn-secondary" href="#" role="button" id="listaaLämpötiedot">Listaa lämpötiedot</a>
+    <a class="btn btn-secondary" href="#" role="button" id="LisääLämpötila">Lisää uusi lämpötila</a>
+</div>
+
+<p>&nbsp;</p>
+
+<!-- Taulukko tietoja varten -->
+
+
+<table class="table table-striped" id="Listaustaulukko">
+    <thead class="thead-light">
+        <tr>
+            <th scope="col"></th>
+            <th scope="col">Lämpö Id</th>
+            <th scope="col">Talo</th>
+            <th scope="col">Huone</th>
+            <th scope="col">Tavoite lämpötila</th>
+            <th scope="col">Nykyinen lämpötila</th>
+            <th scope="col">Muokkaa</th>
+            <th scope="col">Poista</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+
+<!-- Modaali-ikkuna-->
+
+<div class="modal" tabindex="-1" role="dialog" id="lämpöModalDialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><span id="lämpöModalTitle">Muokkaa lämpötilaa</span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-3">LampoId</div>
+                    <div class="col-md-6"><input class="form-control" id="lämpöModal_LämpöId" type="text" readonly></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">Talo</div>
+                    <div class="col-md-6">
+                        <select class="form-control" id="lämpöModal_TaloIdlist">
+                            <option>Ladataan...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">Huone</div>
+                    <div class="col-md-6"><input class="form-control" id="lämpöModal_Huone" type="text"></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">Tavoite lämpötila</div>
+                    <div class="col-md-6"><input class="form-control" id="lämpöModal_HuoneTavoiteLämpötila" type="text"></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">Nykyinen lämpötila</div>
+                    <div class="col-md-6"><input class="form-control" id="lämpöModal_HuoneNykyLämpötila" type="text"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="lämpöModalSaveButton">Tallenna</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Peruuta</button>
+            </div>
+        </div>
+    </div>
+</div>

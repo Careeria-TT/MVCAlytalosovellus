@@ -1,0 +1,177 @@
+﻿
+@{
+    ViewBag.Title = "Talot";
+
+}
+
+@section head{
+}
+
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            function listaaTalotiedot() {
+
+                //tuo talojen tiedot kontrollerilta
+                $.getJSON("/Talot/GetList", null, function (json) {
+                    var talot = JSON.parse(json)
+
+                    //luodaan html-taulukon sisältörunko
+                    var html = "";
+                    for (var i = 0; i < talot.length; i++) {
+                        //alert("Talon nimi: " + talot[i].TaloNimi);
+                        html += "<tr>" +
+                            "<th scope ='row'></th>" +
+                            "<td>" + talot[i].TaloId + "</td>" +
+                            "<td>" + talot[i].TaloNimi + "</td>" +
+                            "<td><a href='#'><span class='fa fa-edit'></span></a></td>" +
+                            "<td><a href='#'><span class='fa fa-trash'></span></a></td>" +
+                            "</tr>\r\n"
+                    }
+
+                    //täytetään taulukko
+                    $("#Listaustaulukko tbody").html(html);
+
+                    //tietojen muokkaus
+                    $(".fa-edit").click(function () {
+
+                        //etsitään talon tiedot klikatulta riviltä
+                        var taloId = $(this).parent().parent().prev().prev().text();
+
+                        //haetaan talon tiedot kontrollerilta Id:n perusteella
+                        $.getJSON("/Talot/GetSingleGroup/" + taloId, null, function (json2) {
+                            var talot = JSON.parse(json2);
+
+                            //alert(json2);
+
+                            //tietojen lataus modaali-ikkunaan
+                            $('#taloModal_TaloId').val(talot.TaloId);
+                            $('#taloModal_TaloNimi').val(talot.TaloNimi);
+
+                            //näytetään modaali-ikkuna
+                            $('#taloModalTitle').text('Muokkaa taloa');
+                            $('#taloModalDialog').modal('show');
+
+                        }); //end getJSON(talot/getsinglegroup)
+
+                    });  //end fa-edit.click
+
+                    //Talon poisto
+                    $(".fa-trash").click(function () {
+                        //etsitään talon tiedot klikatulta riviltä
+                        var taloid = $(this).parent().parent().prev().prev().prev().text();
+                        var ok = confirm("Haluatko varmasti poistaa talon " + taloid + "?");
+
+                        if (ok == true) {
+                            $.getJSON("/Talot/Delete/" + taloid, null, function (status) {
+                                if (status == true) {
+                                    alert('Talo on poistettu!');
+                                    listaaTalotiedot();
+                                }
+                                else {
+                                    alert('Poistaminen ei onnistunut, tarkista tiedot!');
+                                }
+                            });
+                        }
+                    });
+                });
+            }
+            //sivun alustus
+            $(function () {
+                $('#listaaTalotiedot').on('click', function () {
+                    listaaTalotiedot();
+                });
+
+                //Talon lisäys
+                $('#lisääTalo').click(function () {
+
+                    //tyhjennetään ikkunan tiedot
+                    $('#taloModal_TaloId').val('(Uusi Talo)');
+                    $('#taloModal_TaloNimi').val('');
+
+                    //näytetään tyhjä modaali-ikkuna
+                    $('#taloModalTitle').text('Lisää uusi talo');
+                    $('#taloModalDialog').modal('show');
+                });
+
+                //Painetaan Tallenna => luetaan käyttäjän antamat tiedot modaali-ikkunasta
+                $("#taloModalSaveButton").click(function () {
+
+                    var details = {
+                        TaloId: $("#taloModal_TaloId").val(),
+                        TaloNimi: $("#taloModal_TaloNimi").val(),
+                    };
+
+                    /*Lähetetään tiedot kontrollerille,
+                     * annetaan käyttäjälle viesti päivityksen onnistumisesta,
+                     * piilotetaan modaali-ikkuna ja
+                     * päivitetään talolistaus*/
+                    $.post("/Talot/Update/", details, function (status) {
+                        if (status == true) {
+                            $('#taloModalDialog').modal('hide');
+                            listaaTalotiedot();
+                        }
+                        else {
+                            alert('Tallennus epäonnistui, tarkista tiedot!');
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+}
+
+<h2>Talot</h2>
+
+<div>
+    <a class="btn btn-secondary" href="#" role="button" id="listaaTalotiedot">Listaa talotiedot</a>
+    <a class="btn btn-secondary" href="#" role="button" id="lisääTalo">Lisää uusi talo</a>
+</div>
+
+<p>&nbsp;</p>
+
+<!-- Taulukko tietoja varten -->
+
+<table class="table table-striped" id="Listaustaulukko">
+    <thead class="thead-light">
+        <tr>
+            <th scope="col"></th>
+            <th scope="col">Talo Id</th>
+            <th scope="col">Talo</th>
+            <th scope="col">Muokkaa</th>
+            <th scope="col">Poista</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+
+<!-- Modaali-ikkuna-->
+
+<div class="modal" tabindex="-1" role="dialog" id="taloModalDialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><span id="taloModalTitle">Muokkaa taloa</span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-3">TaloId</div>
+                    <div class="col-md-6"><input class="form-control" id="taloModal_TaloId" type="text" readonly></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">Talon Nimi</div>
+                    <div class="col-md-6"><input class="form-control" id="taloModal_TaloNimi" type="text"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="taloModalSaveButton">Tallenna</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Peruuta</button>
+            </div>
+        </div>
+    </div>
+</div>
